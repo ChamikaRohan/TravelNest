@@ -9,7 +9,7 @@ dotenv.config()
 const app = express();
 const PORT = 3000;
 
-mongoose.connect(process.env.MongoDB)
+mongoose.connect(process.env.MONGODB)
     .then(()=>{
         console.log("Conected to MongoDB")
     })

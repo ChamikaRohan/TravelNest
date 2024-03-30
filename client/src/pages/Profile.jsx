@@ -6,12 +6,13 @@ import { updateUserStart, updateUserSuccess, updateUserFailure, signInFailure, s
 import { useDispatch } from "react-redux"
 
 export default function Profile() {
-  const {currentUser} = useSelector((state) => state.user)
+  const {currentUser, loading, error} = useSelector((state) => state.user)
   const fileRef = useRef(undefined);
   const [file, setFile] = useState(undefined);
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(()=>{
@@ -62,6 +63,7 @@ export default function Profile() {
       return;
     } 
     dispatch(updateUserSuccess(data));
+    setUpdateSuccess(true);
     }
     catch(error)
     {
@@ -86,12 +88,14 @@ export default function Profile() {
         <input onChange={handleChange} type="text" defaultValue={currentUser.username} placeholder="username" className="border p-3 rounded-lg" id="username"></input>
         <input onChange={handleChange} type="email" defaultValue={currentUser.email} placeholder="email" className="border p-3 rounded-lg" id="email"></input>
         <input onChange={handleChange} type="password"  placeholder="password" className="border p-3 rounded-lg" id="password"></input>  
-        <button className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">Update</button>    
+        <button disabled={loading} className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">{loading? "Loading...":"Update"}</button>    
       </form>
       <div className="flex justify-between mt-5">
         <span className="text-red-600 cursor-pointer">Delete account</span>
         <span className="text-red-600 cursor-pointer">Sign out</span>
       </div>
+      <p className="text-red-600 mt-5">{error? error: ""}</p>
+      <p className="text-green-600 mt-5">{updateSuccess? "User is updated successfully!": ""}</p>
     </div>
   )
 }

@@ -120,7 +120,12 @@ export default function CreateListing() {
               <input onChange={(e)=>{setFiles(e.target.files)}} type='file' id='images' accept='image/*' multiple className='p-3 border border-gray-300 rounded w-full' />
               <button onClick={handleImageSubmit} type='button' className='p-3 text-green-700 border border-green-5700 rounded uppercase hover:shadow-orange-lg disabled:opacity-80 '>Upload</button>
             </div>
-            <p className='text-red-700'>{imageUploadError && imageUploadError}</p>
+            <p className='text-red-700 text-sm'>{imageUploadError && imageUploadError}</p>
+            {
+              formData.imageUrls.length > 0 && formData.imageUrls.map((url) => (
+                <img src={url} alt='listing image' className='w-40 h-40 object-cover rounded-lg' />
+              )) 
+            }
             <button className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>Create Listing</button>
           </div>
       </form>

@@ -4,6 +4,7 @@ import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/
 import {app} from "../../firebase" 
 import { setLogLevel } from 'firebase/app';
 import {useSelector} from 'react-redux'
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateListing() {
   const {currentUser} = useSelector(state => state.user)  
@@ -26,6 +27,7 @@ export default function CreateListing() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   console.log(formData)
   const handleImageSubmit = ()=>{
       if (files.length > 0 &&  files.length + formData.imageUrls.length < 7 ){
@@ -112,6 +114,8 @@ export default function CreateListing() {
   const handleSubmit = async (e)=>{
     e.preventDefault();
     try{
+      if(formData.imageUrls.length <1 ) return setError("You must upload at least one image")
+      if(+formData.regularPrice < +formData.discountPrice ) return setError("Discount price must be lower than regular price")
       setLoading(true);
       setError(false);
       const res = await fetch('api/listing/create',{
@@ -121,7 +125,7 @@ export default function CreateListing() {
         },
         body: JSON.stringify({
           ...formData,
-          userRef: updateCurrentUser._id
+          userRef: currentUser._id
         }),
       });
       const data = await res.json();
@@ -129,6 +133,8 @@ export default function CreateListing() {
       if (data.success == false){
         setError(data.message);
       }
+      console.log("tst")
+      navigate(`/listing/${data._id}`)
     }
     catch(error)
     {
@@ -182,13 +188,13 @@ export default function CreateListing() {
                 <span className='text-xs'>($ / Month)</span>
               </div>
             </div>
-            <div className='flex items-center gap-2'>
-              <input onChange={handleChange} value={formData.discountPrice} id='discountPrice' required className='p-3 border-gray-300 rounded-lg' type='number' min='10' max='10000000' />
+            {formData.offer && (<div className='flex items-center gap-2'>
+              <input onChange={handleChange} value={formData.discountPrice} id='discountPrice' required className='p-3 border-gray-300 rounded-lg' type='number' min='0' max='10000000' />
               <div className='flex flex-col items-center '>
                 <p>Discounted price</p>
                 <span className='text-xs'>($ / Month)</span>
               </div>
-            </div>
+            </div>)}
             </div>  
           </div>
           <div className='flex flex-col flex-1 gap-4'>complete
@@ -208,7 +214,7 @@ export default function CreateListing() {
                 </div>
               )) 
             }
-            <button className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>{loading ? 'Creating' : 'Create Listing' } </button>
+            <button disabled={loading || uploading} className='p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>{loading ? 'Creating' : 'Create Listing' } </button>
             {error && <p className='text-red-700 text-sm'>{error}</p> }
           </div>
       </form>
